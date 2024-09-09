@@ -8,6 +8,9 @@ import (
 	"golang.org/x/net/html"
 )
 
+
+func GetURLFromHTML(htmlBody, rawBaseURL string)([]string, error) {
+
 func getURLFromHTML(htmlBody, rawBaseURL string)([]string, error) {
 
 	nodDocument, err := html.Parse(strings.NewReader(htmlBody))

@@ -76,7 +76,7 @@ func Test_getURLFromHTML(t *testing.T) {
 				return
 			}
 
-			t.Logf("test pass %v: \n -- expected \"%v\" \n -- actual \"%v\"", tc.name,tc.expected, actual)
+			// t.Logf("test pass %v: \n -- expected \"%v\" \n -- actual   \"%v\"", tc.name,tc.expected, actual)
 		})
 
 	}

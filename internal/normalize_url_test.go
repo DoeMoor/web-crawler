@@ -67,7 +67,7 @@ func TestNormalizeURL(t *testing.T) {
 			actual, err := NormalizeURL(tc.inputURL)
 
 			if err != nil && strings.Contains(err.Error(), tc.errorContains) {
-				t.Logf("test %v: %v", i, tc.name)
+				// t.Logf("test %v: %v", i, tc.name)
 				return
 			}
 			if err != nil {
@@ -79,7 +79,7 @@ func TestNormalizeURL(t *testing.T) {
 				return
 			}
 
-			t.Logf("test %v: %v", i, tc.name)
+			// t.Logf("test %v: %v", i, tc.name)
 		})
 	}
 }
