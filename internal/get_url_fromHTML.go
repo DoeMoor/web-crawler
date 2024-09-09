@@ -17,8 +17,8 @@ func getURLFromHTML(htmlBody, rawBaseURL string)([]string, error) {
 
 	var URLs []string = []string{}
 
-	var f func(*html.Node, *[]string)
-	f = func(nodElement *html.Node, URLs *[]string) {
+	var getNode func(*html.Node)
+	getNode = func(nodElement *html.Node) {
 		if nodElement.Type == html.ElementNode && nodElement.Data == "a" {
 			for _, attr := range nodElement.Attr {
 				if attr.Key == "href"{
@@ -27,15 +27,16 @@ func getURLFromHTML(htmlBody, rawBaseURL string)([]string, error) {
 						fmt.Println("Error: ", err)
 						continue
 					}
-					*URLs = append(*URLs, absoluteURL)
+					URLs = append(URLs, absoluteURL)
 				}
 			}
 	  }
-		for c := nodElement.FirstChild; c != nil; c = c.NextSibling {
-			f(c, URLs)
+		for child := nodElement.FirstChild; child != nil; child = child.NextSibling {
+			getNode(child)
 		}
 	}
-	f(nodDocument, &URLs)
+	
+	getNode(nodDocument)
 
 	return URLs, nil
 }

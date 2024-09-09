@@ -2,7 +2,6 @@ package internal
 
 import (
 	"errors"
-	// "fmt"
 	"net/url"
 	"strings"
 )

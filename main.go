@@ -2,12 +2,11 @@ package main
 
 import (
 	"fmt"
-	// "net/http"
 	"os"
+	"192.168.1.21/doe/web-crawler/internal"
 )
 
 func main() {
-	// argsWithProg := os.Args
 	argsWithoutProg := os.Args[1:]
 
 	if len(argsWithoutProg) < 1 {
@@ -20,23 +19,12 @@ func main() {
 	}
 	if len(argsWithoutProg) == 1 {
 		fmt.Printf("starting crawl of: \"%v\"\n", argsWithoutProg[0])
+
+		bodyString, err := internal.GetHTML(argsWithoutProg[0])
+		if err != nil {
+			fmt.Println("Error: ", err)
+			os.Exit(1)
+		}
+		fmt.Println(bodyString)
 	}
-	// fmt.Println(argsWithProg)
-	// fmt.Println(argsWithoutProg)
-
-	// argsURL := argsWithoutProg[0]
-
-	// client := http.Client{}
-	// request, err := http.NewRequest("GET", argsURL, nil)
-	// if err != nil {
-	// 	fmt.Println("new request error: ", err,"\n", argsURL)
-	// 	return
-	// }
-
-	// respond, err := client.Do(request)
-	// if err != nil {
-	// 	fmt.Println("request error: ", err,"\n", request)
-	// 	return
-	// }
-
 }
