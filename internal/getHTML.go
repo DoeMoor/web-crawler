@@ -7,14 +7,14 @@ import (
 	"net/http"
 )
 
-func GetHTML (rawURL string)(string, error) {
+// getHTML makes a GET request to the URL and returns the body of the response as string.
+func getHTML (rawURL string)(string, error) {
 	client := http.Client{}
 
 	request, err := http.NewRequest("GET", rawURL, nil)
 	if err != nil {
 		return "", err
 	}
-
 	request.Header.Set("Content-Type", "text/html")
 
 	response, err := client.Do(request)

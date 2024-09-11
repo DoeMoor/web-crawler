@@ -8,6 +8,9 @@ import (
 	"golang.org/x/net/html"
 )
 
+//getURLFromHTML extracts all URLs from an HTML document.
+//	It returns a slice of URLs.
+//	e.g. getURLFromHTML("<a href='http://example.com/st/ss/1'>", "http://example.com/st/ss/1")
 func getURLFromHTML(htmlBody, rawBaseURL string)([]string, error) {
 
 	nodDocument, err := html.Parse(strings.NewReader(htmlBody))
@@ -41,7 +44,8 @@ func getURLFromHTML(htmlBody, rawBaseURL string)([]string, error) {
 	return URLs, nil
 }
 
-
+// getAbsoluteURL returns the absolute URL from a base URL and a relative URL.
+//	e.g. getAbsoluteURL("http://example.com/st", "/ss/1") => "http://example.com/st/ss/1"
 func getAbsoluteURL(rawBaseURL, href string) (string, error) {
 	hrefURL, err := url.Parse(href)
 	if err != nil {

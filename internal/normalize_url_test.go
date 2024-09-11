@@ -64,7 +64,7 @@ func TestNormalizeURL(t *testing.T) {
 
 	for i, tc := range test {
 		t.Run(tc.name, func(t *testing.T) {
-			actual, err := NormalizeURL(tc.inputURL)
+			actual, err := normalizeURL(tc.inputURL)
 
 			if err != nil && strings.Contains(err.Error(), tc.errorContains) {
 				// t.Logf("test %v: %v", i, tc.name)
