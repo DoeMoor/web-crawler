@@ -30,7 +30,9 @@ func getURLFromHTML(htmlBody, rawBaseURL string)([]string, error) {
 						fmt.Println("Error: ", err)
 						continue
 					}
-					URLs = append(URLs, absoluteURL)
+					if absoluteURL != rawBaseURL {
+						URLs = append(URLs, absoluteURL)
+					}
 				}
 			}
 	  }
@@ -56,7 +58,9 @@ func getAbsoluteURL(rawBaseURL, href string) (string, error) {
 		return href, nil
 	}
 
-	return rawBaseURL + hrefURL.String(), nil
+	absoluteURL := rawBaseURL + hrefURL.String()
+
+	return strings.TrimSuffix(absoluteURL,"/"), nil
 	
 }
 

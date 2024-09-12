@@ -3,7 +3,6 @@ package internal
 import (
 	"fmt"
 	"net/url"
-	"strings"
 )
 
 func CrawlPage(rawBaseURL, rawCurrentURL string, pages map[string]int) {
@@ -24,36 +23,26 @@ func CrawlPage(rawBaseURL, rawCurrentURL string, pages map[string]int) {
 	
 	fmt.Println("Crawling: ", normalizedCurrentURL)
 	
+	pageHTML, err := getHTML(rawCurrentURL)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	
+	urls, err := getURLFromHTML(pageHTML, rawCurrentURL)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
 	pages[normalizedCurrentURL]++
-
-	page, err := getHTML(rawCurrentURL)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	urls, err := getURLFromHTML(page, rawCurrentURL)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	debugURLs := func(urls []string) {
-		for _, url := range urls {
-			if strings.Contains(url, rawCurrentURL) {
-				fmt.Println("Debug URL:", url)
-			}
-		}
-	}
-	debugURLs(urls)
-
+	
 	for _, url := range urls {
 		CrawlPage(rawBaseURL, url, pages)
 	}
 
 	fmt.Println("Crawled: ", normalizedCurrentURL)
 }
-
 
 // checkDomain checks if the base URL and the current URL have the same domain.
 //	If they don't, it returns false.
