@@ -1,10 +1,9 @@
 package main
 
 import (
+	"192.168.1.21/doe/web-crawler/internal"
 	"fmt"
 	"os"
-
-	"192.168.1.21/doe/web-crawler/internal"
 )
 
 func main() {
@@ -21,12 +20,24 @@ func main() {
 	if len(argsWithoutProg) == 1 {
 		fmt.Printf("starting crawl of: \"%v\"\n", argsWithoutProg[0])
 
-		pages := make(map[string]int)
-		internal.CrawlPage(argsWithoutProg[0], argsWithoutProg[0], pages)
-		fmt.Println("Crawling: ", argsWithoutProg[0])
+		rawBaseURL := argsWithoutProg[0]
+
+		crawler, err := internal.NewCrawlerConfig(rawBaseURL, 10, 10)
+		if err != nil {
+			fmt.Println("error creating config")
+			os.Exit(1)
+		}
+
+		crawler.Wg.Add(1)
+		go crawler.CrawlPage(rawBaseURL)
+		crawler.Wg.Wait()
 		
-		for page , count := range pages {
+		fmt.Println("=================== all pages crawled ===================")
+
+		crawler.Mu.Lock()
+		for page, count := range crawler.Pages {
 			fmt.Printf("Page: %v, Count: %v\n", page, count)
 		}
+		crawler.Mu.Unlock()
 	}
 }
