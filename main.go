@@ -22,7 +22,7 @@ func main() {
 
 		rawBaseURL := argsWithoutProg[0]
 
-		crawler, err := internal.NewCrawlerConfig(rawBaseURL, 10, 10)
+		crawler, err := internal.NewCrawlerConfig(rawBaseURL, 50, 3000)
 		if err != nil {
 			fmt.Println("error creating config")
 			os.Exit(1)

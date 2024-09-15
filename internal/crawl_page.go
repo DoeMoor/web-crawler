@@ -14,15 +14,17 @@ type config struct {
 	Wg                 sync.WaitGroup
 	maxPages           int
 }
+
 // NewConfig creates a new config for crawler.
-// config{
-// 	Pages:              make(map[string]int),
-// 	BaseURL:            *baseURL,
-// 	Mu:                 sync.Mutex{},
-// 	ConcurrencyControl: make(chan struct{}, maxConcurrency),
-// 	Wg:                 sync.WaitGroup{},
-// 	maxPages:           maxPages,
-// }
+//
+//	config{
+//		Pages:              make(map[string]int),
+//		BaseURL:            *baseURL,
+//		Mu:                 sync.Mutex{},
+//		ConcurrencyControl: make(chan struct{}, maxConcurrency),
+//		Wg:                 sync.WaitGroup{},
+//		maxPages:           maxPages,
+//	}
 func NewCrawlerConfig(rawBaseURL string, maxConcurrency, maxPages int) (*config, error) {
 	baseURL, err := url.Parse(rawBaseURL)
 	if err != nil {
@@ -42,28 +44,41 @@ func NewCrawlerConfig(rawBaseURL string, maxConcurrency, maxPages int) (*config,
 // CrawlPage crawls a page and extracts all URLs from it.
 func (cnf *config) CrawlPage(rawCurrentURL string) {
 
-	cnf.concurrencyControl <- struct{}{}
-	
 	defer func() {
 		cnf.Wg.Done()
 		<-cnf.concurrencyControl
 	}()
-	
+
 	if !checkDomain(cnf.baseURL.String(), rawCurrentURL) {
+		cnf.acquireConcurrencySlot()
 		return
 	}
 
 	normalizedCurrentURL, err := normalizeURL(rawCurrentURL)
 	if err != nil {
+		cnf.acquireConcurrencySlot()
 		fmt.Println(err)
 		return
 	}
 
-	ok := cnf.addVisitedPage(normalizedCurrentURL)
-	if !ok {
+	if cnf.isPagesLimitReached() {
+		//limit reached
+		if _, isPageAdded := cnf.Pages[normalizedCurrentURL]; isPageAdded{
+			cnf.Pages[normalizedCurrentURL]++
+		}
+		cnf.acquireConcurrencySlot()
 		return
 	}
 
+
+	ok := cnf.addVisitedPage(normalizedCurrentURL)
+	if !ok {
+		cnf.acquireConcurrencySlot()
+		return
+	}
+
+	cnf.acquireConcurrencySlot()
+	
 	// fmt.Println("Crawling: ", normalizedCurrentURL)
 
 	pageHTML, err := getHTML(rawCurrentURL)
@@ -78,8 +93,6 @@ func (cnf *config) CrawlPage(rawCurrentURL string) {
 		return
 	}
 
-
-
 	for _, url := range urls {
 		if cnf.isPagesLimitReached() {
 			break
@@ -91,16 +104,17 @@ func (cnf *config) CrawlPage(rawCurrentURL string) {
 	fmt.Println("Crawled: ", normalizedCurrentURL)
 }
 
+func (cnf *config) acquireConcurrencySlot() {
+	cnf.concurrencyControl <- struct{}{}
+}
+
 // isPagesLimitReached checks if the number of pages crawled is equal to the maximum number of pages.
 // if maxPages is reached, it returns 	"true".
 // otherwise, it returns 	"false".
-func (cnf config) isPagesLimitReached() bool {
+func (cnf *config) isPagesLimitReached() bool {
 	defer cnf.Mu.Unlock()
 	cnf.Mu.Lock()
-	if len(cnf.Pages) == cnf.maxPages {
-		return true
-	}
-	return false
+	return len(cnf.Pages) == cnf.maxPages
 }
 
 // checkDomain checks if the base URL and the current URL have the same domain.
@@ -126,7 +140,7 @@ func checkDomain(baseURL, currentURL string) bool {
 //
 // otherwise it increments the page count and returns "false".
 func (cnf *config) addVisitedPage(normalizedCurrentURL string) bool {
-	
+
 	cnf.Mu.Lock()
 	defer cnf.Mu.Unlock()
 
