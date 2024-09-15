@@ -73,7 +73,7 @@ func startCrawl(args []string) {
 		}
 	}
 
-	fmt.Printf("starting crawl of: \"%v\" %v %v\n", rawBaseURL, maxConcurrency, maxPages)
+	// fmt.Printf("starting crawl of: \"%v\" %v %v\n", rawBaseURL, maxConcurrency, maxPages)
 
 	crawler, err := internal.NewCrawlerConfig(rawBaseURL, maxConcurrency, maxPages)
 	if err != nil {
@@ -85,12 +85,8 @@ func startCrawl(args []string) {
 	go crawler.CrawlPage(rawBaseURL)
 	crawler.Wg.Wait()
 
-	fmt.Println("=================== all pages crawled ===================")
-
-	crawler.Mu.Lock()
-	fmt.Printf("=================== Pages crawled: %v ===================\n", len(crawler.Pages))
-	for page, count := range crawler.Pages {
-		fmt.Printf("Page: %v, Count: %v\n", page, count)
-	}
-	crawler.Mu.Unlock()
+	// fmt.Println("=================== all pages crawled ===================")
+	// fmt.Printf( "=================== Pages crawled: %v ===================\n", crawler.PagesLen())
+	crawler.PrintReport()
+	// fmt.Println("=========================================================")
 }

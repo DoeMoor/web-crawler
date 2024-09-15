@@ -3,6 +3,7 @@ package internal
 import (
 	"fmt"
 	"net/url"
+	"sort"
 	"sync"
 )
 
@@ -93,7 +94,7 @@ func (cnf *config) CrawlPage(rawCurrentURL string) {
 		go cnf.CrawlPage(url)
 	}
 
-	fmt.Println("Crawled: ", normalizedCurrentURL)
+	// fmt.Println("Crawled: ", normalizedCurrentURL)
 }
 
 func (cnf *config) acquireConcurrencySlot() {
@@ -143,4 +144,39 @@ func (cnf *config) addVisitedPage(normalizedCurrentURL string) bool {
 	}
 	cnf.Pages[normalizedCurrentURL] = 1
 	return true //page is added to the map
+}
+
+// PrintReport prints the report of the crawler.
+// 	========================================
+// 	REPORT for https://www.scrapingcourse.com/pagination
+// 	========================================
+// 	Found 2 internal links to www.scrapingcourse.com/pagination/12
+// 	Found 1 internal links to www.scrapingcourse.com/pagination/6
+// 	Found 4 internal links to www.scrapingcourse.com/pagination/3
+// 	Found 4 internal links to www.scrapingcourse.com/pagination/1
+// 	Found 4 internal links to www.scrapingcourse.com/pagination/13
+// 	Found 3 internal links to www.scrapingcourse.com/pagination/4
+// 	Found 1 internal links to www.scrapingcourse.com/pagination/5
+// 	Found 1 internal links to www.scrapingcourse.com/pagination/11
+// 	Found 1 internal links to www.scrapingcourse.com/pagination
+// 	Found 6 internal links to www.scrapingcourse.com/pagination/2
+func (cnf *config) PrintReport() {
+
+	fmt.Printf(`
+=============================
+REPORT for %v
+=============================
+`,cnf.baseURL.String())
+
+	sortedKeys := make([]string, 0, cnf.PagesLen())
+
+	for url := range cnf.Pages {
+		sortedKeys = append(sortedKeys, url)
+	}
+
+	sort.Strings(sortedKeys)
+
+	for _ , key := range sortedKeys {
+		fmt.Printf("Found %v internal links to %v\n", cnf.Pages[key], key)
+	}
 }

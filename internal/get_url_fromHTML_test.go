@@ -58,8 +58,9 @@ func Test_getURLFromHTML(t *testing.T) {
 		<a href="/link/st/2">link</a>
 	</body>
 	<a href="http://example.com/st/i">link</a>
+	<a href="hide?id=41546769&amp;goto=news">hide</a>
 </html>`,
-			expected: []string{"http://example.com/st/link/st/1", "http://example.com/st/link/st/2", "http://example.com/st/i"},
+			expected: []string{"http://example.com/st/link/st/1", "http://example.com/st/link/st/2", "http://example.com/st/i","http://example.com/st/hide?id=41546769&goto=news"},
 		},
 	}
 

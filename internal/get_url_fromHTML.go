@@ -53,6 +53,7 @@ func getURLFromHTML(htmlBody, rawBaseURL string) ([]string, error) {
 func getAbsoluteURL(rawBaseURL, href string) (string, error) {
 	rawBaseURL = strings.TrimSuffix(rawBaseURL, "/")
 	href = strings.TrimSuffix(href, "/")
+
 	hrefURL, err := url.Parse(href)
 	if err != nil {
 		return "", err
@@ -63,7 +64,16 @@ func getAbsoluteURL(rawBaseURL, href string) (string, error) {
 		return href, nil
 	}
 
-	absoluteURL := rawBaseURL + hrefURL.String()
+	absoluteURL, err := url.JoinPath(rawBaseURL, href)
+	if err != nil {
+		return "", err
+	}
+
+	absoluteURL, err = url.PathUnescape(absoluteURL)
+	if err != nil {
+		return "", err
+	}
+	
 
 	return absoluteURL, nil
 

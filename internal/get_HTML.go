@@ -25,7 +25,7 @@ func getHTML(rawURL string) (string, error) {
 	defer response.Body.Close()
 
 	if response.StatusCode >= 400 {
-		return "", fmt.Errorf("status code: %d", response.StatusCode)
+		return "", fmt.Errorf("status code: %v  url: \"%v\"", response.StatusCode, rawURL)
 	}
 
 	body, err := io.ReadAll(response.Body)
