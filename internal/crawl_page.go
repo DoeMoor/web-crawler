@@ -44,42 +44,34 @@ func NewCrawlerConfig(rawBaseURL string, maxConcurrency, maxPages int) (*config,
 // CrawlPage crawls a page and extracts all URLs from it.
 func (cnf *config) CrawlPage(rawCurrentURL string) {
 
+	cnf.acquireConcurrencySlot()
+
 	defer func() {
 		cnf.Wg.Done()
 		<-cnf.concurrencyControl
 	}()
 
+	if cnf.PagesLen() >= cnf.maxPages {
+		return
+	}
+
+	//skip if the base URL and the current URL have different domains
 	if !checkDomain(cnf.baseURL.String(), rawCurrentURL) {
-		cnf.acquireConcurrencySlot()
 		return
 	}
 
 	normalizedCurrentURL, err := normalizeURL(rawCurrentURL)
 	if err != nil {
-		cnf.acquireConcurrencySlot()
 		fmt.Println(err)
 		return
 	}
 
-	if cnf.isPagesLimitReached() {
-		//limit reached
-		if _, isPageAdded := cnf.Pages[normalizedCurrentURL]; isPageAdded{
-			cnf.Pages[normalizedCurrentURL]++
-		}
-		cnf.acquireConcurrencySlot()
-		return
-	}
-
-
 	ok := cnf.addVisitedPage(normalizedCurrentURL)
 	if !ok {
-		cnf.acquireConcurrencySlot()
 		return
 	}
 
-	cnf.acquireConcurrencySlot()
-	
-	// fmt.Println("Crawling: ", normalizedCurrentURL)
+	//check if the limit of pages is reached
 
 	pageHTML, err := getHTML(rawCurrentURL)
 	if err != nil {
@@ -94,7 +86,7 @@ func (cnf *config) CrawlPage(rawCurrentURL string) {
 	}
 
 	for _, url := range urls {
-		if cnf.isPagesLimitReached() {
+		if cnf.PagesLen() >= cnf.maxPages {
 			break
 		}
 		cnf.Wg.Add(1)
@@ -111,10 +103,10 @@ func (cnf *config) acquireConcurrencySlot() {
 // isPagesLimitReached checks if the number of pages crawled is equal to the maximum number of pages.
 // if maxPages is reached, it returns 	"true".
 // otherwise, it returns 	"false".
-func (cnf *config) isPagesLimitReached() bool {
+func (cnf *config) PagesLen() int {
 	defer cnf.Mu.Unlock()
 	cnf.Mu.Lock()
-	return len(cnf.Pages) == cnf.maxPages
+	return len(cnf.Pages)
 }
 
 // checkDomain checks if the base URL and the current URL have the same domain.
@@ -145,16 +137,10 @@ func (cnf *config) addVisitedPage(normalizedCurrentURL string) bool {
 	defer cnf.Mu.Unlock()
 
 	_, pageIsVisited := cnf.Pages[normalizedCurrentURL]
-	if !pageIsVisited {
-		cnf.Pages[normalizedCurrentURL] = 1 //add page and mark page as visited
-		return true
+	if pageIsVisited {
+		cnf.Pages[normalizedCurrentURL]++ //increment the page count
+		return false
 	}
-	cnf.Pages[normalizedCurrentURL]++
-	return false //page already visited
+	cnf.Pages[normalizedCurrentURL] = 1
+	return true //page is added to the map
 }
-
-// func (cnf *config) incrementPageCount(normalizedCurrentURL string) {
-// 	cnf.Mu.Lock()
-// 	defer cnf.Mu.Unlock()
-// 	cnf.Pages[normalizedCurrentURL]++
-// }

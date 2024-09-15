@@ -37,15 +37,15 @@ func Test_getURLFromHTML(t *testing.T) {
 
 		{
 			name:       "relative + absolute link",
-			rawBaseURL: "http://example.com/st",
+			rawBaseURL: "http://example.com/st/",
 			htmlBody: `
 <html>
 	<body>
 		<a href="/link/st/1">link</a>
-		<a href="http://example.com/st">link</a>
+		<a href="http://example.com/">link</a>
 	</body>
 </html>`,
-			expected: []string{"http://example.com/st/link/st/1", "http://example.com/st"},
+			expected: []string{"http://example.com/st/link/st/1", "http://example.com"},
 		},
 
 		{
@@ -55,11 +55,11 @@ func Test_getURLFromHTML(t *testing.T) {
 <html>
 	<body>
 		<a href="/link/st/1">link</a>
-		<a href="/link/st/1">link</a>
+		<a href="/link/st/2">link</a>
 	</body>
-	<a href="http://example.com/st">link</a>
+	<a href="http://example.com/st/i">link</a>
 </html>`,
-			expected: []string{"http://example.com/st/link/st/1", "http://example.com/st/link/st/1", "http://example.com/st"},
+			expected: []string{"http://example.com/st/link/st/1", "http://example.com/st/link/st/2", "http://example.com/st/i"},
 		},
 	}
 

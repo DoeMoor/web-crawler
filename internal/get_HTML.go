@@ -8,7 +8,7 @@ import (
 )
 
 // getHTML makes a GET request to the URL and returns the body of the response as string.
-func getHTML (rawURL string)(string, error) {
+func getHTML(rawURL string) (string, error) {
 	client := http.Client{}
 
 	request, err := http.NewRequest("GET", rawURL, nil)
@@ -22,7 +22,7 @@ func getHTML (rawURL string)(string, error) {
 		return "", err
 	}
 
-  defer response.Body.Close()
+	defer response.Body.Close()
 
 	if response.StatusCode >= 400 {
 		return "", fmt.Errorf("status code: %d", response.StatusCode)

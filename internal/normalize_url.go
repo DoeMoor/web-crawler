@@ -7,6 +7,7 @@ import (
 )
 
 // NormalizeURL removes the scheme, capital letters, and trailing slash from a URL.
+//
 //	inputURL: "http://example.com/some/long/Path/",
 //	expected: "example.com/some/long/path",
 func normalizeURL(inURL string) (string, error) {

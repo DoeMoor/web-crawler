@@ -2,15 +2,15 @@ package internal
 
 import (
 	// "fmt"
-	"testing"
 	"strings"
+	"testing"
 )
 
 func TestNormalizeURL(t *testing.T) {
 	test := []struct {
-		name     string
-		inputURL string
-		expected string
+		name          string
+		inputURL      string
+		expected      string
 		errorContains string
 	}{
 		{
@@ -39,9 +39,9 @@ func TestNormalizeURL(t *testing.T) {
 			expected: "example.com/stf/rrr/rstp",
 		},
 		{
-			name:     "wrong URL",
-			inputURL: "://example.com:/rst",
-			expected: "",
+			name:          "wrong URL",
+			inputURL:      "://example.com:/rst",
+			expected:      "",
 			errorContains: "invalid URL",
 		},
 		{
@@ -56,7 +56,7 @@ func TestNormalizeURL(t *testing.T) {
 			errorContains: "invalid URL",
 		},
 		{
-			name: "path only",
+			name:     "path only",
 			inputURL: "/stf/rrr/rstp?query=1",
 			expected: "/stf/rrr/rstp",
 		},
